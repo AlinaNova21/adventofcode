@@ -1,11 +1,9 @@
-const fs = require('fs')
 const moment = require('moment')
 
 const argv = process.argv.slice(2)
-const input = fs.readFileSync(argv[0], 'utf8').split("\n").filter(Boolean).map(v => {
+const input = require('./input').map(v => {
   const [,time,data] = v.match(/^\[(.+)\] (.+)$/)
   const ts = moment(time)
-  console.log(time, ts, data)
   let event = ''
   let id = -1
   if (data === 'wakes up') event = 'wake'
@@ -53,10 +51,10 @@ arr.forEach(g => {
   const guard = arr[0]
   const max = guard.minutes.reduce((a,b) => Math.max(a,b), 0)
   const minute = guard.minutes.indexOf(max)
-  console.log(guard.id, minute, guard.id * minute)
+  console.log('part3', guard.id * minute)
 }
 arr.sort((a,b) => b.mostAsleep.val - a.mostAsleep.val)
 {
   const guard = arr[0]
-  console.log(guard.id, guard.mostAsleep.min, guard.mostAsleep.val, guard.mostAsleep.min * guard.id)
+  console.log('part2',guard.mostAsleep.min * guard.id)
 }
