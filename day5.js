@@ -1,6 +1,3 @@
-const moment = require('moment')
-
-const argv = process.argv.slice(2)
 const input = require('./input')
 
 let reacted = true
@@ -31,3 +28,4 @@ function react(res) {
   }
   return res.length
 }
+
