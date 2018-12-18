@@ -1,11 +1,11 @@
 const axios = require('axios')
-const fs = require('fs')
+const fs = require('fs').promises
 const argv = process.argv.slice(2)
 
-axios.get(`https://adventofcode.com/2018/day/${argv[0]}/input`, { 
-  headers: {
-    cookie: `session=${process.env.COOKIE}`
-  }
-}).then(({ data }) => {
-  fs.writeFile(`input.day${argv[0]}`, data, () => {})
-})
+async function run() {
+  axios.defaults.headers.common.cookie = `session=${process.env.COOKIE}`
+  const { data: input } = await axios.get(`https://adventofcode.com/2018/day/${argv[0]}/input`),
+  await fs.writeFile(`input/day${argv[0]}`, input)
+}
+
+run().catch(console.error)

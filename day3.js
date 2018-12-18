@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 const argv = process.argv.slice(2)
-const input = fs.readFileSync(argv[0], 'utf8').split("\n").map(v => {
+const input = require('./input').map(v => {
   const [,id,x,y,w,h] = v.match(/#(\d+) @ (\d+),(\d+): (\d+)x(\d+)/).map(v => parseInt(v))
   return { id, x, y, w, h }
 })

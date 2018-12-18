@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 const argv = process.argv.slice(2)
-const input = fs.readFileSync(argv[0], 'utf8').split("\n")
+const input = require('./input')
 
 let two = 0
 let three = 0

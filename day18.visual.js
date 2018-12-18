@@ -4,7 +4,7 @@ canvas.height = window.innerHeight
 const clay = []
 let world
 async function run() {
-  const res = await fetch('input.day18')
+  const res = await fetch('input/day18')
   const data = await res.text()
   const input = data.split('\n').filter(Boolean)
   const w = input[0].length

@@ -4,7 +4,7 @@ canvas.height = window.innerHeight
 const clay = []
 
 async function run() {
-  const res = await fetch('input.day17')
+  const res = await fetch('input/day17')
   const data = await res.text()
   const input = data.split('\n').filter(Boolean)
     .map(v => {
@@ -47,7 +47,7 @@ async function run() {
   setTimeout(() => {
     loop()
     renderLoop()
-  }, 5000)
+  }, 10)
   function loop(v) {
     count++
     let ind = q.shift() || toInd(spring)
@@ -62,6 +62,7 @@ async function run() {
     }
   }
   function renderLoop() {
+    // loop()
     if(q.length) {
       requestAnimationFrame(renderLoop)
     }
@@ -145,50 +146,77 @@ async function run() {
     const maxind = Math.max(settled.reduce((a,b) => Math.max(a,b),0), flowing.reduce((a,b) => Math.max(a,b),0))
     const [ox,oy] = toXY(maxind)
     canvas.viewOff = canvas.viewOff || 0
-    const scale = 2
-    const yoff = Math.max(0, oy - (canvas.width / (scale * 2)))
+    canvas.scrollSpeed = 0
+    const scale = 1
+    const rscale = 4
+    const yoff = Math.max(0, oy * rscale - (canvas.height / (scale * 4)))
     if(canvas.viewOff < yoff) {
-      if(yoff - canvas.viewOff < 50) {
-        canvas.viewOff -= 0.5
-      }
-      if(yoff - canvas.viewOff > 100) canvas.viewOff+=3
-      canvas.viewOff++
+      canvas.scrollSpeed += (yoff - canvas.viewOff) / 100
+      canvas.viewOff += canvas.scrollSpeed
     }
     ctx.clearRect(0,0,canvas.width,canvas.height)
     ctx.save()
     ctx.scale(scale,scale)
-    ctx.translate(-minx,Math.floor(-canvas.viewOff))
+    ctx.translate(-minx * rscale,Math.floor(-canvas.viewOff))
+
+    ctx.beginPath()
+    ctx.strokeStyle = 'red'
+    ctx.moveTo(0,yoff)
+    ctx.lineTo(500,yoff)
+    ctx.moveTo(0,canvas.viewOff)
+    ctx.lineTo(500,canvas.viewOff)
+    ctx.stroke()
+
     ctx.strokeStyle = 'brown'
-    ctx.lineWidth = 1.5
+    ctx.lineWidth = rscale
+    ctx.lineCap = 'round'
     ctx.fillStyle = 'white'
     ctx.beginPath()
     for(const [a,b] of input) {
       const p = a[0] === 'x' ? (v) => [a[1], v] : (v) => [v, a[1]]
       const start = a[0] === 'x' ? [a[1],b[1][0]] : [b[1][0],a[1]]
       const end = a[0] === 'x' ? [a[1],b[1][1]] : [b[1][1],a[1]]
-      ctx.moveTo(...start)
-      ctx.lineTo(...end)
+      const [startx,starty] = start.map(v => v * rscale)
+      const [endx,endy] = end.map(v => v * rscale)
+      ctx.moveTo(startx + (rscale/2), starty)
+      ctx.lineTo(endx + (rscale/2), endy)
     }
     ctx.stroke()
     
     ctx.beginPath()
     ctx.fillStyle = 'lightblue'
     for(const ind of flowing) {
-      ctx.rect(...toXY(ind), 1, 1)
+      let [x,y] = toXY(ind)
+      // ctx.rect(x*rscale,y*rscale, rscale, rscale)
+      x *= rscale
+      x += rscale / 2
+      y *= rscale
+      y += rscale / 2
+      ctx.moveTo(x,y)
+      ctx.arc(x,y,rscale/1.2,0,Math.PI * 2)
     }
     ctx.fill()
     ctx.beginPath()
     ctx.fillStyle = 'blue'
     for(const ind of settled) {
-      ctx.rect(...toXY(ind), 1, 1)
+      let [x,y] = toXY(ind)
+      // ctx.rect(x*rscale,y*rscale, rscale, rscale)
+      x *= rscale
+      x += rscale / 2
+      y *= rscale
+      y += rscale / 2
+      ctx.moveTo(x,y)
+      ctx.arc(x,y,rscale/1.2,0,Math.PI * 2)
     }
     ctx.fill()
-    ctx.translate(650,canvas.viewOff)
+    ctx.translate(650 * rscale, Math.ceil(canvas.viewOff))
     ctx.fillStyle = 'white'
     ctx.fillText(`Cycle: ${count}`, 0, 10)
     ctx.fillText(`Settled: ${settled.length}`, 0, 20)
     ctx.fillText(`Flowing: ${flowing.length}`, 0, 30)
     ctx.fillText(`All: ${settled.length+flowing.length}`, 0, 40)
+    ctx.fillText(`Scroll Speed: ${canvas.scrollSpeed.toFixed(2)}`, 0, 60)
+    ctx.fillText(`Scroll Diff: ${(yoff - canvas.viewOff)}`, 0, 70)
     ctx.restore()
     return
     

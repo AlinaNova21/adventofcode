@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const input = fs.readFileSync('input.day1', 'utf8').split("\n").map(v => parseInt(v))
+const input = require('./input').map(v => parseInt(v))
 
 const day1 = input.reduce((l,v) => l + v, 0)
 console.log(day1)
