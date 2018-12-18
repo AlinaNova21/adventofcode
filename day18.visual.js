@@ -89,16 +89,17 @@ async function run() {
   //renderLoop()
   // render()
   btn.addEventListener('click', function () {
-    world.step()
-    render()
+    // world.step()
+    renderLoop()
   })
+  btn.innerHTML = 'start'
   // while(count--) {
     // render()
   // }
   const values = new Set()
   const dup = new Map()
   let finalValue = 0
-  setTimeout(() => renderLoop(), 10000)
+  // setTimeout(() => renderLoop(), 8000)
   function renderLoop() {
     requestAnimationFrame(renderLoop)
     world.step()
@@ -111,7 +112,8 @@ async function run() {
       ctx.save()
       ctx.font = '24pt mono'
       ctx.fillStyle = 'green'
-      ctx.fillText(`Final Value: ${finalValue}`, 200, 50)
+      //ctx.fillText(`Final Value: ${finalValue}`, 200, 50)
+      ctx.fillText(`Loop Found!`, 200, 50)
       ctx.restore()
     }
     if(finalValue) return
