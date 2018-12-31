@@ -1,0 +1,29 @@
+<!-- <button id="btn">DoAction</button> -->
+<input id="slider" type="range" min="0" max="100" value="0" step="1" style="display:none">
+<canvas id="canvas"></canvas>
+<style>
+body {
+  background: black;
+}
+button {
+  z-index: 1000;
+  position: absolute;
+}
+#slider {
+  z-index: 1000;
+  position: absolute;
+  left: 50vw;
+}
+canvas {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/100/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/buckets/1.90.0/buckets.min.js"></script>
+<script src="node_modules/easystarjs/bin/easystar-0.4.3.min.js"></script>
+<script src="day22.visual.js"></script>
