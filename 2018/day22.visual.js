@@ -176,7 +176,7 @@ async function run() {
   const pathfinder = pathfind(graph, '0,0-1', `${target[0]},${target[1]}-1`)
   let path = []
   function pathStep() {
-    for(let i = 0; i < 500; i++) {
+    for(let i = 0; i < 100; i++) {
       const { value: { cameFrom, costSoFar, start, goal, path: finalPath, cost } = {}, value, done } = pathfinder.next()
       if(finalPath) {
         path = finalPath.map(n => n.pos)
@@ -377,8 +377,11 @@ async function run() {
 
   function threeRender() {
     const [[x,y,z]] = path.slice(-1)
-    const diff = Math.max(0.1, ((y - 20) - camera.position.y) / 50)
+    const diff = Math.max(0, ((y - 20) - camera.position.y) / 50)
     camera.position.y += diff
+    if(diff === 0 && (y + 200) < h) {
+      camera.position.y += 0.1
+    }
     // pointLight.position.set(camera.position)
     pointLight.position.x = 10
     pointLight.position.z = 20

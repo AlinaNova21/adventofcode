@@ -100,4 +100,5 @@ while(opmap.length) {
     m.tick()
   }
   console.log(m.reg[0])
+  console.log(m.opmap)
 }

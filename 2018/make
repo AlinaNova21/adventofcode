@@ -1,0 +1,4 @@
+#!/bin/bash
+node day19-4.js input/day19
+nasm -f elf32 -l day19.lst day19.asm
+gcc -no-pie -m32 day19.o -o day19
