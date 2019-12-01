@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -20,6 +21,14 @@ func main() {
 	}
 	day := 0
 	fmt.Sscan(args[0], &day)
+	if len(args) >= 2 && args[1] == "download" {
+		err := aoc.DownloadInput(2018, day)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("Downloaded input for day %d", day)
+		return
+	}
 	if day == 0 {
 		wg := sync.WaitGroup{}
 		wg.Add(25)
