@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ags131/adventofcode/2018/go/aoc"
+	"github.com/ags131/adventofcode/2019/aoc"
 )
 
 func main() {

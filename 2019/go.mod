@@ -1,4 +1,4 @@
-module github.com/ags131/adventofcode/2018/go
+module github.com/ags131/adventofcode/2019
 
 go 1.13
 

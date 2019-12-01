@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/ags131/adventofcode/2018/go/aoc"
+	"github.com/ags131/adventofcode/2019/aoc"
 )
 
 func calc(mass int) int {

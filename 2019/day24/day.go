@@ -1,6 +1,6 @@
 package day24
 
-import "github.com/ags131/adventofcode/2018/go/aoc"
+import "github.com/ags131/adventofcode/2019/aoc"
 
 // Run runs this day
 func Run(input *aoc.Input) aoc.Output {
