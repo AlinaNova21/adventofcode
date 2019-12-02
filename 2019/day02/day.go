@@ -4,27 +4,8 @@ import (
 	"fmt"
 
 	"github.com/ags131/adventofcode/2019/aoc"
+	"github.com/ags131/adventofcode/2019/aoc/intcode"
 )
-
-type Machine struct {
-	IP int
-	Memory []int
-}
-
-func (m *Machine) Step() bool {
-	op := m.Memory[m.IP]
-	switch op {
-	case 1:
-		m.Memory[m.Memory[m.IP + 3]] = m.Memory[m.Memory[m.IP + 1]] + m.Memory[m.Memory[m.IP + 2]]
-		m.IP += 4
-	case 2:
-		m.Memory[m.Memory[m.IP + 3]] = m.Memory[m.Memory[m.IP + 1]] * m.Memory[m.Memory[m.IP + 2]]
-		m.IP += 4
-	case 99:
-		return false
-	}
-	return true
-}
 
 // Run runs this day
 func Run(input *aoc.Input) aoc.Output {
@@ -47,16 +28,10 @@ func Run(input *aoc.Input) aoc.Output {
 	p1vals := clone()
 	p1vals[1] = 12
 	p1vals[2] = 2
-	m := Machine{
+	m := intcode.Machine{
 		Memory: p1vals,
 	}
-	
-	// vals = []int{1,9,10,3,2,3,11,0,99,30,40,50}
-	for {
-		if !m.Step() {
-			break
-		}
-	}
+	m.Run()
 	part1 := m.Memory[0]
 	part2 := 0
 outer:
@@ -65,16 +40,12 @@ outer:
 			p2vals := clone()
 			p2vals[1] = n
 			p2vals[2] = v
-			m := Machine{
+			m := intcode.Machine{
 				Memory: p2vals,
 			}
-			for {
-				if !m.Step() {
-					break
-				}
-			}
+			m.Run()
 			if m.Memory[0] == 19690720 {
-				part2 = 100 * n + v
+				part2 = 100*n + v
 				break outer
 			}
 		}
