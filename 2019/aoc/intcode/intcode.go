@@ -40,6 +40,29 @@ type Machine struct {
 	Output OutputFunc
 }
 
+func NewMachine(p Program) *Machine {
+	return &Machine{
+		Memory: []int(p.Clone()),
+	}
+}
+
+func (m *Machine) RunCh() (chan int, chan int) {
+	chIn := make(chan int, 1)
+	chOut := make(chan int, 1)
+	m.Input = func() int {
+		ret := <-chIn
+		return ret
+	}
+	m.Output = func(v int) {
+		chOut <- v
+	}
+	go func() {
+		m.Run()
+		close(chOut)
+	}()
+	return chIn, chOut
+}
+
 // Run executes until halt
 func (m *Machine) Run() {
 	for m.Step() {
