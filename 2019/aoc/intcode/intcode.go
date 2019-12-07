@@ -37,10 +37,8 @@ type OutputFunc func(v int)
 type Machine struct {
 	IP      int
 	Memory  []int
-	Input   InputFunc
-	Output  OutputFunc
-	InCh    chan int
-	OutCh   chan int
+	Input   chan int
+	Output  chan int
 	Result  int
 	haltCtx context.Context
 }
@@ -51,28 +49,21 @@ func NewMachine(p Program) *Machine {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Machine{
 		Memory:  []int(p.Clone()),
+		Input:   chIn,
+		Output:  chOut,
 		haltCtx: ctx,
-	}
-	m.Input = func() int {
-		ret := <-chIn
-		return ret
-	}
-	m.Output = func(v int) {
-		m.Result = v
-		chOut <- v
 	}
 	go func() {
 		m.Run()
 		cancel()
 		close(chOut)
 	}()
-	m.InCh = chIn
-	m.OutCh = chOut
 	return m
 }
 
-func (m *Machine) Wait() {
+func (m *Machine) Wait() int {
 	<-m.haltCtx.Done()
+	return m.Result
 }
 
 func (m *Machine) Halted() <-chan struct{} {
@@ -124,10 +115,12 @@ func (m *Machine) Step() bool {
 		m.setResult(3, m.getParam(1)*m.getParam(2))
 		m.IP += 4
 	case OPCodeInput:
-		m.setResult(1, m.Input())
+		m.setResult(1, <-m.Input)
 		m.IP += 2
 	case OPCodeOutput:
-		m.Output(m.getParam(1))
+		v := m.getParam(1)
+		m.Output <- v
+		m.Result = v
 		m.IP += 2
 	case OPCodeJumpIfTrue:
 		if m.getParam(1) > 0 {

@@ -12,13 +12,13 @@ func Run(input *aoc.Input) aoc.Output {
 	part1 := 0
 	part2 := 0
 	m1 := intcode.NewMachine(program)
-	m1.InCh <- 1
-	for v := range m1.OutCh {
+	m1.Input <- 1
+	for v := range m1.Output {
 		part1 = v
 	}
 	m2 := intcode.NewMachine(program)
-	m2.InCh <- 5
-	for v := range m2.OutCh {
+	m2.Input <- 5
+	for v := range m2.Output {
 		part2 = v
 	}
 	return aoc.Output{Part1: part1, Part2: part2}

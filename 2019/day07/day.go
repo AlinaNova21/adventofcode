@@ -10,14 +10,14 @@ var program intcode.Program
 
 func CreateAmp(phase int) *intcode.Machine {
 	m := intcode.NewMachine(program)
-	m.InCh <- phase
+	m.Input <- phase
 	return m
 }
 
 func RunAmp(phase, input int) int {
 	m := CreateAmp(phase)
-	m.InCh <- input
-	return <-m.OutCh
+	m.Input <- input
+	return <-m.Output
 }
 
 func RunAmps(phase []int) int {
@@ -31,12 +31,12 @@ func RunAmps(phase []int) int {
 	mC := CreateAmp(phase[2])
 	mD := CreateAmp(phase[3])
 	mE := CreateAmp(phase[4])
-	go chCopy(mA.OutCh, mB.InCh)
-	go chCopy(mB.OutCh, mC.InCh)
-	go chCopy(mC.OutCh, mD.InCh)
-	go chCopy(mD.OutCh, mE.InCh)
-	mA.InCh <- 0
-	chCopy(mE.OutCh, mA.InCh)
+	go chCopy(mA.Output, mB.Input)
+	go chCopy(mB.Output, mC.Input)
+	go chCopy(mC.Output, mD.Input)
+	go chCopy(mD.Output, mE.Input)
+	mA.Input <- 0
+	chCopy(mE.Output, mA.Input)
 	return mE.Result
 }
 
