@@ -1,6 +1,7 @@
 package intcode
 
 import (
+	"context"
 	"fmt"
 	"math"
 )
@@ -34,33 +35,48 @@ type OutputFunc func(v int)
 
 // Machine is an intcode interpreter
 type Machine struct {
-	IP     int
-	Memory []int
-	Input  InputFunc
-	Output OutputFunc
+	IP      int
+	Memory  []int
+	Input   InputFunc
+	Output  OutputFunc
+	InCh    chan int
+	OutCh   chan int
+	Result  int
+	haltCtx context.Context
 }
 
 func NewMachine(p Program) *Machine {
-	return &Machine{
-		Memory: []int(p.Clone()),
-	}
-}
-
-func (m *Machine) RunCh() (chan int, chan int) {
 	chIn := make(chan int, 1)
 	chOut := make(chan int, 1)
+	ctx, cancel := context.WithCancel(context.Background())
+	m := &Machine{
+		Memory:  []int(p.Clone()),
+		haltCtx: ctx,
+	}
 	m.Input = func() int {
 		ret := <-chIn
 		return ret
 	}
 	m.Output = func(v int) {
+		m.Result = v
 		chOut <- v
 	}
 	go func() {
 		m.Run()
+		cancel()
 		close(chOut)
 	}()
-	return chIn, chOut
+	m.InCh = chIn
+	m.OutCh = chOut
+	return m
+}
+
+func (m *Machine) Wait() {
+	<-m.haltCtx.Done()
+}
+
+func (m *Machine) Halted() <-chan struct{} {
+	return m.haltCtx.Done()
 }
 
 // Run executes until halt

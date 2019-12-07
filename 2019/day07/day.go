@@ -8,17 +8,16 @@ import (
 
 var program intcode.Program
 
-func CreateAmp(phase int) (chan int, chan int) {
+func CreateAmp(phase int) *intcode.Machine {
 	m := intcode.NewMachine(program)
-	chIn, chOut := m.RunCh()
-	chIn <- phase
-	return chIn, chOut
+	m.InCh <- phase
+	return m
 }
 
 func RunAmp(phase, input int) int {
-	chIn, chOut := CreateAmp(phase)
-	chIn <- input
-	return <-chOut
+	m := CreateAmp(phase)
+	m.InCh <- input
+	return <-m.OutCh
 }
 
 func RunAmps(phase []int) int {
@@ -27,18 +26,18 @@ func RunAmps(phase []int) int {
 			chIn <- v
 		}
 	}
-	chInA, chOutA := CreateAmp(phase[0])
-	chInB, chOutB := CreateAmp(phase[1])
-	chInC, chOutC := CreateAmp(phase[2])
-	chInD, chOutD := CreateAmp(phase[3])
-	chInE, chOutE := CreateAmp(phase[4])
-	go chCopy(chOutA, chInB)
-	go chCopy(chOutB, chInC)
-	go chCopy(chOutC, chInD)
-	go chCopy(chOutD, chInE)
-	chInA <- 0
-	chCopy(chOutE, chInA)
-	return <-chInA
+	mA := CreateAmp(phase[0])
+	mB := CreateAmp(phase[1])
+	mC := CreateAmp(phase[2])
+	mD := CreateAmp(phase[3])
+	mE := CreateAmp(phase[4])
+	go chCopy(mA.OutCh, mB.InCh)
+	go chCopy(mB.OutCh, mC.InCh)
+	go chCopy(mC.OutCh, mD.InCh)
+	go chCopy(mD.OutCh, mE.InCh)
+	mA.InCh <- 0
+	chCopy(mE.OutCh, mA.InCh)
+	return mE.Result
 }
 
 // Run runs this day
