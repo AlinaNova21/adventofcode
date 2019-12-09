@@ -35,3 +35,25 @@ func DownloadInput(year, day int) error {
 	}
 	return nil
 }
+
+// ReadInput parses IntCode program input
+func ReadIntSlice(input *Input) []int {
+	ret := make([]int, 0)
+	var v int
+	for {
+		n, _ := fmt.Fscanf(input, "%d", &v)
+		if n == 0 {
+			break
+		}
+		ret = append(ret, v)
+	}
+	return ret
+}
+
+func CloneIntSlice(ints []int) []int {
+	ret := make([]int, len(ints))
+	for i, v := range ints {
+		ret[i] = v
+	}
+	return ret
+}

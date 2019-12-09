@@ -1,7 +1,6 @@
 package day01
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/ags131/adventofcode/2019/aoc"
@@ -13,15 +12,7 @@ func calc(mass int) int {
 
 // Run runs this day
 func Run(input *aoc.Input) aoc.Output {
-	var v int
-	vals := make([]int, 0)
-	for {
-		n, _ := fmt.Fscan(input, &v)
-		if n == 0 {
-			break
-		}
-		vals = append(vals, v)
-	}
+	vals := aoc.ReadIntSlice(input)
 
 	part1 := 0
 	part2 := 0

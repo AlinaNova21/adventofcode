@@ -19,6 +19,7 @@ const (
 	OPCodeJumpIfFalse
 	OPCodeLessThan
 	OPCodeEquals
+	OpCodeSetRelBase
 	OPCodeHalt OPCode = 99
 )
 
@@ -28,6 +29,7 @@ type ParameterMode int
 const (
 	ParameterModePosition = iota
 	ParameterModeImmediate
+	ParameterModeRelative
 )
 
 type InputFunc func() int
@@ -36,6 +38,7 @@ type OutputFunc func(v int)
 // Machine is an intcode interpreter
 type Machine struct {
 	IP      int
+	RelBase int
 	Memory  []int
 	Input   chan int
 	Output  chan int
@@ -47,8 +50,12 @@ func NewMachine(p Program) *Machine {
 	chIn := make(chan int, 1)
 	chOut := make(chan int, 1)
 	ctx, cancel := context.WithCancel(context.Background())
+	mem := make([]int, 1e6)
+	for i, v := range p {
+		mem[i] = v
+	}
 	m := &Machine{
-		Memory:  []int(p.Clone()),
+		Memory:  mem,
 		Input:   chIn,
 		Output:  chOut,
 		haltCtx: ctx,
@@ -84,24 +91,38 @@ func (m *Machine) Set(addr, v int) {
 	m.Memory[addr] = v
 }
 
-func (m *Machine) getParam(off int) int {
+func (m *Machine) getMode(off int) ParameterMode {
 	v := m.Memory[m.IP]
 	t1 := int(math.Pow(10, float64(off+2)))
 	t2 := int(math.Pow(10, float64(off+1)))
-	pm := ParameterMode((v % t1) / t2)
+	return ParameterMode((v % t1) / t2)
+}
+
+func (m *Machine) getParam(off int) int {
 	addr := m.IP + off
+	pm := m.getMode(off)
 	switch pm {
 	case ParameterModePosition:
 		return m.Memory[m.Memory[addr]]
 	case ParameterModeImmediate:
 		return m.Memory[addr]
+	case ParameterModeRelative:
+		return m.Memory[m.RelBase+m.Memory[addr]]
 	}
 	return 0
 }
 
 func (m *Machine) setResult(off, v int) {
 	addr := m.IP + off
-	m.Memory[m.Memory[addr]] = v
+	pm := m.getMode(off)
+	switch pm {
+	case ParameterModePosition:
+		m.Memory[m.Memory[addr]] = v
+	case ParameterModeImmediate:
+		m.Memory[addr] = v
+	case ParameterModeRelative:
+		m.Memory[m.RelBase+m.Memory[addr]] = v
+	}
 }
 
 // Step executes one instruction
@@ -148,6 +169,9 @@ func (m *Machine) Step() bool {
 		}
 		m.setResult(3, v)
 		m.IP += 4
+	case OpCodeSetRelBase:
+		m.RelBase += m.getParam(1)
+		m.IP += 2
 	case OPCodeHalt:
 		return false
 	default:
