@@ -9,6 +9,7 @@ import (
 // OPCode determines the operation to execute
 type OPCode int
 
+// OpCode values
 const (
 	OPCodeNop OPCode = iota
 	OPCodeAdd
@@ -26,14 +27,12 @@ const (
 // ParameterMode changes how parameters are read
 type ParameterMode int
 
+// ParameterMode values
 const (
 	ParameterModePosition = iota
 	ParameterModeImmediate
 	ParameterModeRelative
 )
-
-type InputFunc func() int
-type OutputFunc func(v int)
 
 // Machine is an intcode interpreter
 type Machine struct {
@@ -43,9 +42,11 @@ type Machine struct {
 	Input   chan int
 	Output  chan int
 	Result  int
+	Stopped bool
 	haltCtx context.Context
 }
 
+// NewMachine creates a new IntCode vm
 func NewMachine(p Program) *Machine {
 	chIn := make(chan int, 1)
 	chOut := make(chan int, 1)
@@ -68,11 +69,13 @@ func NewMachine(p Program) *Machine {
 	return m
 }
 
+// Wait waits for the vm to halt and returns the last output
 func (m *Machine) Wait() int {
 	<-m.haltCtx.Done()
 	return m.Result
 }
 
+// Halted returns a channel indicating when the vm halts
 func (m *Machine) Halted() <-chan struct{} {
 	return m.haltCtx.Done()
 }
@@ -83,10 +86,12 @@ func (m *Machine) Run() {
 	}
 }
 
+// Get returns the value at the specified memory address
 func (m *Machine) Get(addr int) int {
 	return m.Memory[addr]
 }
 
+// Set sets the value at the specified memory address
 func (m *Machine) Set(addr, v int) {
 	m.Memory[addr] = v
 }
@@ -173,6 +178,7 @@ func (m *Machine) Step() bool {
 		m.RelBase += m.getParam(1)
 		m.IP += 2
 	case OPCodeHalt:
+		m.Stopped = true
 		return false
 	default:
 		panic(fmt.Errorf("Unknown opcode! %d", op))
