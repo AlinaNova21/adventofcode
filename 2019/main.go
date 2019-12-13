@@ -14,6 +14,7 @@ func main() {
 	subcommands.Register(subcommands.CommandsCommand(), "")
 	subcommands.Register(&runCmd{}, "")
 	subcommands.Register(&iasmCmd{}, "")
+	subcommands.Register(&idisasmCmd{}, "")
 	flag.Parse()
 	ctx := context.Background()
 	os.Exit(int(subcommands.Execute(ctx)))

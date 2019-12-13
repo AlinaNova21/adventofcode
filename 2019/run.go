@@ -13,6 +13,7 @@ import (
 )
 
 type runCmd struct {
+	download bool
 }
 
 func (*runCmd) Name() string     { return "run" }
@@ -23,6 +24,7 @@ func (*runCmd) Usage() string {
 }
 
 func (r *runCmd) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&r.download, "download", false, "Force download of input")
 	// f.IntVar(&r.day, "day", 0, "day to run, 0 for all")
 	// f.StringVar(&r.suffix, "suffix", "", "input suffix to append")
 }
@@ -36,7 +38,15 @@ func (r *runCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 	}
 	day := 0
 	fmt.Sscan(args[0], &day)
-	if len(args) >= 2 && args[1] == "download" {
+	if r.download {
+		tgt := time.Date(2019, time.December, day, 0, 0, 0, 0, time.Local).Add(-1 * time.Hour)
+		for time.Now().Unix() < tgt.Unix() {
+			now := time.Now()
+			dur := tgt.Sub(now) + (1 * time.Second)
+			fmt.Printf("Sleeping for %s\n", dur.String())
+			time.Sleep(1 * time.Second)
+		}
+		fmt.Println("Downloading...")
 		err := aoc.DownloadInput(2019, day)
 		if err != nil {
 			log.Fatal(err)

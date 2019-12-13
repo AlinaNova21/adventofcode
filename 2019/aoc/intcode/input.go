@@ -1,6 +1,7 @@
 package intcode
 
 import (
+	"io"
 	"strconv"
 	"strings"
 
@@ -11,7 +12,7 @@ import (
 type Program []int
 
 // ReadInput parses IntCode program input
-func ReadInput(input *aoc.Input) Program {
+func ReadInput(input io.Reader) Program {
 	return aoc.ReadIntSlice(input)
 }
 

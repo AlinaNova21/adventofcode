@@ -2,6 +2,7 @@ package aoc
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 
@@ -36,8 +37,8 @@ func DownloadInput(year, day int) error {
 	return nil
 }
 
-// ReadInput parses IntCode program input
-func ReadIntSlice(input *Input) []int {
+// ReadIntSlice parses IntCode program input
+func ReadIntSlice(input io.Reader) []int {
 	ret := make([]int, 0)
 	var v int
 	for {

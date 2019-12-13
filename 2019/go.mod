@@ -7,4 +7,5 @@ require (
 	github.com/gitchander/permutation v0.0.0-20181107151852-9e56b92e9909
 	github.com/go-resty/resty/v2 v2.1.0
 	github.com/google/subcommands v1.0.1
+	gonum.org/v1/gonum v0.6.1
 )
