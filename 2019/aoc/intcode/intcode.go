@@ -36,29 +36,41 @@ const (
 
 // Machine is an intcode interpreter
 type Machine struct {
-	IP      int
-	RelBase int
-	Memory  []int
-	Input   chan int
-	Output  chan int
-	Result  int
-	Stopped bool
-	haltCtx context.Context
+	IP         int
+	RelBase    int
+	Memory     []int
+	Input      chan int
+	Output     chan int
+	InputFunc  func() int
+	OutputFunc func(int)
+	Result     int
+	Stopped    bool
+	haltCtx    context.Context
 }
 
 // NewMachine creates a new IntCode vm
 func NewMachine(p Program) *Machine {
-	chIn := make(chan int, 1)
+	return newMachine(p, 0, 0)
+}
+
+func newMachine(p Program, ip int, rel int) *Machine {
+	chIn := make(chan int, 0)
 	chOut := make(chan int, 1)
 	ctx, cancel := context.WithCancel(context.Background())
 	mem := make([]int, 1e6)
-	for i, v := range p {
-		mem[i] = v
-	}
+	copy(mem, p)
 	m := &Machine{
+		IP:      ip,
+		RelBase: rel,
 		Memory:  mem,
 		Input:   chIn,
 		Output:  chOut,
+		InputFunc: func() int {
+			return <-chIn
+		},
+		OutputFunc: func(v int) {
+			chOut <- v
+		},
 		haltCtx: ctx,
 	}
 	go func() {
@@ -67,6 +79,11 @@ func NewMachine(p Program) *Machine {
 		close(chOut)
 	}()
 	return m
+}
+
+// Fork creates a copy of the Machine
+func (m *Machine) Fork() *Machine {
+	return newMachine(m.Memory, m.IP, m.RelBase)
 }
 
 // Wait waits for the vm to halt and returns the last output
@@ -141,11 +158,11 @@ func (m *Machine) Step() bool {
 		m.setResult(3, m.getParam(1)*m.getParam(2))
 		m.IP += 4
 	case OPCodeInput:
-		m.setResult(1, <-m.Input)
+		m.setResult(1, m.InputFunc())
 		m.IP += 2
 	case OPCodeOutput:
 		v := m.getParam(1)
-		m.Output <- v
+		m.OutputFunc(v)
 		m.Result = v
 		m.IP += 2
 	case OPCodeJumpIfTrue:
