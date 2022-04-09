@@ -3,7 +3,7 @@
     "axios": "^0.18.0",
     "canvas": "^2.2.0",
     "easystarjs": "^0.4.3",
-    "moment": "^2.22.2",
+    "moment": "^2.29.2",
     "ngraph.graph": "^0.0.15",
     "pathfinding": "^0.4.18"
   },
